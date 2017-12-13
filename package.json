@@ -1,0 +1,23 @@
+{
+  "name": "bamazon",
+  "version": "1.0.0",
+  "description": "Bamazon homework inventory tracker",
+  "main": "bamazon-customer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kered5/Bamazon.git"
+  },
+  "author": "Chris Platt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kered5/Bamazon/issues"
+  },
+  "homepage": "https://github.com/kered5/Bamazon#readme",
+  "dependencies": {
+    "inquirer": "^4.0.1",
+    "mysql": "^2.15.0"
+  }
+}
