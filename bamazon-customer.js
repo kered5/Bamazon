@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var color = require("colors");
 
 // create the connection information for the sql database
 var connection = mysql.createConnection({
@@ -25,33 +26,84 @@ connection.connect(function(err) {
 function readProducts() {
   console.log("Selecting all products...\n");
   connection.query("SELECT * FROM products", function(err, res) {
+      console.log("Welcome to Bamazon Prime".blue.bgWhite);
+      console.log("-----------------------------------------------------------------------------".blue);
+            for (var i = 0; i < res.length; i++) {
+      console.log("Item ID: ".yellow +res[i].item_id + " |Product: ".yellow + res[i].product_name + " |Dept: ".yellow + res[i].department_name + " |Price: ".yellow + res[i].price + " |Qty: ".yellow + res[i].stock_quantity);
+      console.log("-----------------------------------------------------------------------------".blue);
+    }
     if (err) throw err;
     // Log all results of the SELECT statement
-    console.log(res);
-    connection.end();
+    // console.log(res);
+ start();
   });
 }
 
-
-// function which prompts the user for what action they should take
 function start() {
+  // prompt for info about the item being put up for auction
   inquirer
-    .prompt({
-      name: "postOrBid",
-      type: "rawlist",
-      message: "Would you like to [POST] an auction or [BID] on an auction?",
-      choices: ["POST", "BID"]
-    })
+    .prompt([
+      {
+        name: "item",
+        type: "input",
+        message: "What is the ID of the item you would like to purchase?"
+      },
+      {
+        name: "quantity",
+        type: "input",
+        message: "How many would you like to buy?"
+      },
+      {
+        name: "startingBid",
+        type: "input",
+        message: "What would you like your starting bid to be?",
+        validate: function(value) {
+          if (isNaN(value) === false) {
+            return true;
+          }
+          return false;
+        }
+      }
+    ])
     .then(function(answer) {
-      // based on their answer, either call the bid or the post functions
-      if (answer.postOrBid.toUpperCase() === "POST") {
-        postAuction();
-      }
-      else {
-        bidAuction();
-      }
+      // when finished prompting, insert a new item into the db with that info
+      connection.query(
+        "INSERT INTO auctions SET ?",
+        {
+          item_name: answer.item,
+          category: answer.category,
+          starting_bid: answer.startingBid,
+          highest_bid: answer.startingBid
+        },
+        function(err) {
+          if (err) throw err;
+          console.log("Your auction was created successfully!");
+          // re-prompt the user for if they want to bid or post
+          // start();
+          readProducts();
+        }
+      );
     });
 }
+// function which prompts the user for what action they should take
+// function start() {
+//   inquirer
+//     .prompt({
+//       name: "postOrBid",
+//       type: "rawlist",
+//       message: "Would you like to [POST] an auction or [BID] on an auction?",
+//       choices: ["POST", "BID"]
+//     })
+//     .then(function(answer) {
+//       // based on their answer, either call the bid or the post functions
+//       if (answer.postOrBid.toUpperCase() === "POST") {
+//         postAuction();
+//       }
+//       else {
+//         bidAuction();
+//       }
+//     });
+// }
 
 // function to handle posting new items up for auction
 function postAuction() {
@@ -101,15 +153,15 @@ function postAuction() {
     });
 }
 
-function readProducts() {
-  console.log("Selecting all products...\n");
-  connection.query("SELECT * FROM products", function(err, res) {
-    if (err) throw err;
-    // Log all results of the SELECT statement
-    console.log(res);
-    connection.end();
-  });
-}
+// function readProducts() {
+//   console.log("Selecting all products...\n");
+//   connection.query("SELECT * FROM products", function(err, res) {
+//     if (err) throw err;
+//     // Log all results of the SELECT statement
+//     console.log(res);
+//     connection.end();
+//   });
+// }
 
 
 function bidAuction() {
